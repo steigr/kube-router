@@ -1677,9 +1677,10 @@ func (ln *linuxNetworking) setupRoutesForExternalIPForDSR(serviceInfoMap service
 			activeExternalIPs[externalIP] = true
 
 			if !strings.Contains(outStr, externalIP) {
-				if err = exec.Command("ip", "route", "add", externalIP, "dev", "kube-bridge", "table",
-					externalIPRouteTableId).Run(); err != nil {
-					glog.Error("Failed to add route for " + externalIP + " in custom route table for external IP's due to: " + err.Error())
+				out, err := exec.Command("ip", "route", "add", externalIP, "dev", "kube-bridge", "table",
+					externalIPRouteTableId).CombinedOutput()
+				if err != nil {
+					glog.Errorf("Failed to add route for %s in custom route table for external IP's due to: %v, Output: %s", externalIP, err.Error(), out)
 					continue
 				}
 			}
